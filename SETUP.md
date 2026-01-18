@@ -1,23 +1,29 @@
 # Creating the Main Branch
 
-## Current Status
+## Status
 
-The main branch has been **created locally** in this repository, pointing to commit `70f0824` which contains the WSL specification files (SPEC.md and system.md) from the original WSL-spec-draft branch (claude/wsl-spec-draft-A8Mfl).
+✅ Main branch **created locally** (commit `70f0824`)  
+⏳ Main branch **needs to be pushed** to remote repository
 
-However, due to environment limitations in the automated PR workflow, the main branch has not yet been pushed to the remote repository.
+The main branch has been created locally and points to commit `70f0824`, which contains the WSL specification files (SPEC.md and system.md) from the WSL-spec-draft branch (claude/wsl-spec-draft-A8Mfl).
 
-## How to Complete the Setup
+## Quick Start (Recommended)
+
+The easiest way to complete the setup:
+
+```bash
+git clone https://github.com/tcdent/wsl.git
+cd wsl
+./create-main-branch.sh
+```
+
+## All Options
 
 You have **three options** to push the main branch to GitHub:
 
-### Option 1: Run the GitHub Actions Workflow (Recommended)
+### Option 1: Run the Script (Fastest)
 
-1. Go to the Actions tab in this repository
-2. Select the "Create Main Branch" workflow
-3. Click "Run workflow"
-4. The workflow will automatically create and push the main branch
-
-### Option 2: Run the Script Locally
+**Note:** After merging this PR, this is the simplest method:
 
 If you have push access to the repository:
 
@@ -29,6 +35,15 @@ cd wsl
 # Run the script
 ./create-main-branch.sh
 ```
+
+### Option 2: GitHub Actions Workflow
+
+After merging this PR:
+
+1. Go to the Actions tab in this repository
+2. Select the "Create Main Branch" workflow
+3. Click "Run workflow"
+4. The workflow will automatically create and push the main branch
 
 ### Option 3: Manual Git Commands
 

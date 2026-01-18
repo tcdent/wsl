@@ -2,6 +2,8 @@
 
 This repository contains the specification for the Worldview State Language (WSL), a compact, declarative notation for encoding and maintaining conceptual worldviews over time.
 
+> **Note:** This repository is being set up. The main branch needs to be created - see [SETUP.md](SETUP.md) for instructions.
+
 ## Contents
 
 - **SPEC.md** - Complete WSL specification (v0.1 Draft)
