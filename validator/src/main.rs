@@ -78,12 +78,25 @@ fn main() -> ExitCode {
     };
 
     if result.is_valid() {
-        println!("Valid WSL document");
+        if result.has_warnings() {
+            println!("Valid WSL document with {} warning(s):", result.warnings.len());
+            for warning in &result.warnings {
+                println!("  {}", warning);
+            }
+        } else {
+            println!("Valid WSL document");
+        }
         ExitCode::SUCCESS
     } else {
         eprintln!("Invalid WSL document ({} error(s)):", result.errors.len());
         for error in &result.errors {
             eprintln!("  {}", error);
+        }
+        if result.has_warnings() {
+            eprintln!("Additionally, {} warning(s):", result.warnings.len());
+            for warning in &result.warnings {
+                eprintln!("  {}", warning);
+            }
         }
         ExitCode::from(1)
     }
