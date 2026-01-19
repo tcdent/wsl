@@ -53,16 +53,19 @@ CLAUDE_HAIKU = ModelConfig(
 )
 
 # OpenAI Models
+# Note: GPT-5 family only supports temperature=1
 GPT_5_2 = ModelConfig(
     provider=Provider.OPENAI,
     model_id="gpt-5.2",
     display_name="GPT-5.2",
+    temperature=1.0,
 )
 
 GPT_5_MINI = ModelConfig(
     provider=Provider.OPENAI,
     model_id="gpt-5-mini",
     display_name="GPT-5 Mini",
+    temperature=1.0,
 )
 
 
