@@ -13,9 +13,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from .config import ModelConfig, ALL_MODELS, DEFAULT_MODELS, get_model
+from ..common.config import ModelConfig, ALL_MODELS, DEFAULT_MODELS, get_model
+from ..common.llm_clients import LLMClient, LLMResponse, create_client
 from .evaluator import EvalResult, EvalScore, EvalSummary, evaluate_response, summarize_results
-from .llm_clients import LLMClient, LLMResponse, create_client
 from .test_cases import (
     ALL_TEST_CASES,
     Difficulty,
@@ -359,33 +359,23 @@ def generate_report(
             "",
         ])
 
+        # Show worldview content (CLI-generated if available, otherwise predefined)
+        lines.append("#### 2. Worldview Content")
+        lines.append("")
         if has_generated_content:
-            # Show expected vs actual when CLI mode was used
-            lines.extend([
-                "#### 2. Worldview Content",
-                "",
-                "**Expected (predefined):**",
-                "```wvf",
-                tc.wsl_content.strip(),
-                "```",
-                "",
-                "**Actual (CLI-generated):**",
-            ])
-            # Show first non-None generated content (should be same for all models)
+            # Show CLI-generated content
             for r in model_results.values():
                 if r.generated_worldview_content:
                     lines.extend([
                         "```wvf",
                         r.generated_worldview_content.strip(),
                         "```",
+                        "",
                     ])
                     break
-            lines.append("")
         else:
-            # Standard display when using predefined content
+            # Show predefined content (non-CLI mode)
             lines.extend([
-                "#### 2. Worldview Content",
-                "",
                 "```wvf",
                 tc.wsl_content.strip(),
                 "```",
