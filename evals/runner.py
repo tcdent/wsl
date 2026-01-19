@@ -87,8 +87,7 @@ class EvalRunner:
         try:
             cmd = [
                 self.worldview_cli_path,
-                "--fact",
-                fact_statement,
+                fact_statement,  # positional argument
                 "--file",
                 worldview_path,
             ]
