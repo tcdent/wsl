@@ -22,11 +22,14 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Every Sunday at midnight UTC
 
-  # Run on PR to evals directory
+  # Run on PR to evals directory or spec changes
   pull_request:
     branches: [main, master]
     paths:
       - 'evals/**'
+      - 'spec/**'
+      - 'system.md'
+      - 'SPEC.md'
       - '.github/workflows/evals.yml'
 
 jobs:
