@@ -356,13 +356,7 @@ async fn main() -> Result<()> {
 
                     if cli.verbose {
                         let tool_elapsed = tool_start.elapsed();
-                        // Truncate long results for readability
-                        let result_preview = if result.len() > 500 {
-                            format!("{}... ({} chars total)", &result[..500], result.len())
-                        } else {
-                            result.clone()
-                        };
-                        eprintln!("[result:{}ms] {}", tool_elapsed.as_millis(), result_preview);
+                        eprintln!("[result:{}ms] {}", tool_elapsed.as_millis(), result);
                     }
 
                     agent.submit_tool_result(&call.call_id, result);

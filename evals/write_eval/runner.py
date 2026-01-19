@@ -569,17 +569,25 @@ def generate_write_report(
             if result.error:
                 lines.append(f"```\nERROR: {result.error}\n```")
             elif result.generated_content:
-                content_preview = result.generated_content[:800]
-                if len(result.generated_content) > 800:
-                    content_preview += "\n..."
-                lines.append(f"```wvf\n{content_preview}\n```")
+                lines.append(f"```wvf\n{result.generated_content}\n```")
             else:
                 lines.append("```\n(no content generated)\n```")
 
             # Add agent thinking if available
             if result.metrics.thinking_content:
-                thinking_preview = " ".join(result.metrics.thinking_content)[:300]
-                lines.append(f"\n*Agent thinking:* {thinking_preview}...")
+                thinking_full = "\n".join(result.metrics.thinking_content)
+                lines.append(f"\n**Agent thinking:**\n```\n{thinking_full}\n```")
+
+            # Add tool interactions if available
+            if result.metrics.tool_interactions:
+                lines.append("\n**Tool interactions:**")
+                for interaction in result.metrics.tool_interactions:
+                    if interaction["type"] == "tool_call":
+                        lines.append(f"- **Call:** `{interaction.get('name', 'unknown')}`")
+                        if "params" in interaction:
+                            lines.append(f"  ```json\n  {interaction['params']}\n  ```")
+                    elif interaction["type"] == "tool_result":
+                        lines.append(f"- **Result:** {interaction.get('content', '')}")
 
             lines.append("")
 
@@ -657,7 +665,9 @@ def generate_write_json(
                         "output_tokens": r.metrics.output_tokens,
                         "thinking_tokens": r.metrics.thinking_tokens,
                     },
-                    "content_preview": r.generated_content[:200] if r.generated_content else None,
+                    "generated_content": r.generated_content,
+                    "agent_thinking": r.metrics.thinking_content,
+                    "tool_interactions": r.metrics.tool_interactions,
                 }
                 for r in results
             ],
