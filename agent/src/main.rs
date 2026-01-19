@@ -310,7 +310,7 @@ struct Cli {
 fn create_read_tool() -> SimpleTool {
     SimpleTool::new(
         "read_wsl",
-        "Read the current contents of the WSL file. Returns the file contents with line numbers.",
+        "Read the current contents of the WSL file. Returns the file contents with line numbers prefixed (e.g., '   1│content'). Use read_wsl first before editing to see current state.",
         json!({
             "type": "object",
             "properties": {},
@@ -323,34 +323,39 @@ fn create_read_tool() -> SimpleTool {
 fn create_edit_tool() -> SimpleTool {
     SimpleTool::new(
         "edit_wsl",
-        r#"Edit the WSL file. You can either:
-1. Replace a specific line by providing line_number and new_content
-2. Insert a new line after a specific line by providing line_number and new_content with insert=true
-3. Append to the end of the file by providing only new_content (no line_number)
-4. Delete a line by providing line_number and delete=true
+        r#"Apply search/replace edits to the WSL file. Each edit specifies an old_string to find and a new_string to replace it with.
 
-The tool will validate the resulting file against WSL syntax rules."#,
+Rules:
+- Each old_string must match exactly (including whitespace/indentation)
+- Each old_string must appear exactly once in the file (include more context if ambiguous)
+- To insert new content, use old_string to match an existing line and include it plus your new lines in new_string
+- To delete content, use an empty new_string
+- Multiple edits are applied sequentially
+
+The tool validates the result against WSL syntax rules before writing."#,
         json!({
             "type": "object",
             "properties": {
-                "line_number": {
-                    "type": "integer",
-                    "description": "The line number to edit (1-indexed). If omitted, appends to end."
-                },
-                "new_content": {
-                    "type": "string",
-                    "description": "The new content for this line. For concepts, use no indentation. For facets, use 2-space indent with '.' prefix. For claims, use 4-space indent with '-' prefix."
-                },
-                "insert": {
-                    "type": "boolean",
-                    "description": "If true, insert new_content after line_number instead of replacing. Default false."
-                },
-                "delete": {
-                    "type": "boolean",
-                    "description": "If true, delete the line at line_number. Default false."
+                "edits": {
+                    "type": "array",
+                    "description": "List of search/replace operations to apply sequentially",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "old_string": {
+                                "type": "string",
+                                "description": "Exact string to find (must be unique in file). Include full lines with proper indentation."
+                            },
+                            "new_string": {
+                                "type": "string",
+                                "description": "String to replace it with. Use empty string to delete."
+                            }
+                        },
+                        "required": ["old_string", "new_string"]
+                    }
                 }
             },
-            "required": []
+            "required": ["edits"]
         }),
     )
 }
@@ -358,16 +363,16 @@ The tool will validate the resulting file against WSL syntax rules."#,
 /// Handle the read_wsl tool call
 fn handle_read_wsl(file_path: &PathBuf) -> String {
     if !file_path.exists() {
-        return "File does not exist yet. You can create it by using edit_wsl with new_content.".to_string();
+        return "File does not exist yet. Use edit_wsl with edits to create it.".to_string();
     }
 
     match std::fs::read_to_string(file_path) {
         Ok(content) => {
-            // Return with line numbers
+            // Return with line numbers in codey format
             content
                 .lines()
                 .enumerate()
-                .map(|(i, line)| format!("{:4}: {}", i + 1, line))
+                .map(|(i, line)| format!("{:4}│{}", i + 1, line))
                 .collect::<Vec<_>>()
                 .join("\n")
         }
@@ -377,13 +382,18 @@ fn handle_read_wsl(file_path: &PathBuf) -> String {
 
 /// Handle the edit_wsl tool call
 fn handle_edit_wsl(file_path: &PathBuf, params: &serde_json::Value) -> String {
-    let line_number = params.get("line_number").and_then(|v| v.as_i64()).map(|n| n as usize);
-    let new_content = params.get("new_content").and_then(|v| v.as_str());
-    let insert = params.get("insert").and_then(|v| v.as_bool()).unwrap_or(false);
-    let delete = params.get("delete").and_then(|v| v.as_bool()).unwrap_or(false);
+    // Parse edits array
+    let edits = match params.get("edits").and_then(|v| v.as_array()) {
+        Some(arr) => arr,
+        None => return "Error: 'edits' array is required".to_string(),
+    };
 
-    // Read current file content (or start empty)
-    let current_content = if file_path.exists() {
+    if edits.is_empty() {
+        return "Error: 'edits' array cannot be empty".to_string();
+    }
+
+    // Read current file content (or start empty for new files)
+    let mut content = if file_path.exists() {
         match std::fs::read_to_string(file_path) {
             Ok(c) => c,
             Err(e) => return format!("Error reading file: {}", e),
@@ -392,66 +402,61 @@ fn handle_edit_wsl(file_path: &PathBuf, params: &serde_json::Value) -> String {
         String::new()
     };
 
-    let mut lines: Vec<String> = current_content.lines().map(|s| s.to_string()).collect();
+    // Validate and apply each edit
+    for (i, edit) in edits.iter().enumerate() {
+        let old_string = match edit.get("old_string").and_then(|v| v.as_str()) {
+            Some(s) => s,
+            None => return format!("Edit {}: missing 'old_string'", i + 1),
+        };
+        let new_string = match edit.get("new_string").and_then(|v| v.as_str()) {
+            Some(s) => s,
+            None => return format!("Edit {}: missing 'new_string'", i + 1),
+        };
 
-    // Perform the edit operation
-    let result = match (line_number, new_content, delete) {
-        (Some(ln), _, true) => {
-            // Delete line
-            if ln == 0 || ln > lines.len() {
-                return format!("Error: Line number {} out of range (1-{})", ln, lines.len());
+        // For new files, old_string should be empty to append
+        if content.is_empty() {
+            if !old_string.is_empty() {
+                return format!(
+                    "Edit {}: file is empty, old_string must be empty to create new content",
+                    i + 1
+                );
             }
-            lines.remove(ln - 1);
-            Ok(())
+            content = new_string.to_string();
+            continue;
         }
-        (Some(ln), Some(content), false) if insert => {
-            // Insert after line
-            if ln > lines.len() {
-                return format!("Error: Line number {} out of range for insert (1-{})", ln, lines.len());
-            }
-            lines.insert(ln, content.to_string());
-            Ok(())
-        }
-        (Some(ln), Some(content), false) => {
-            // Replace line
-            if ln == 0 || ln > lines.len() {
-                return format!("Error: Line number {} out of range (1-{})", ln, lines.len());
-            }
-            lines[ln - 1] = content.to_string();
-            Ok(())
-        }
-        (None, Some(content), false) => {
-            // Append to end
-            // Add a blank line before if the file doesn't end with one and isn't empty
-            if !lines.is_empty() && !lines.last().map(|l| l.trim().is_empty()).unwrap_or(true) {
-                lines.push(String::new());
-            }
-            for line in content.lines() {
-                lines.push(line.to_string());
-            }
-            Ok(())
-        }
-        _ => {
-            Err("Invalid parameters: must provide either new_content or delete=true")
-        }
-    };
 
-    if let Err(e) = result {
-        return format!("Error: {}", e);
+        // Check that old_string exists and is unique
+        let count = content.matches(old_string).count();
+        match count {
+            0 => {
+                return format!(
+                    "Edit {}: old_string not found in file. \
+                     Make sure the string matches exactly, including whitespace and indentation.",
+                    i + 1
+                );
+            }
+            1 => {} // good
+            n => {
+                return format!(
+                    "Edit {}: old_string found {} times (must be unique). \
+                     Include more surrounding context to make the match unique.",
+                    i + 1,
+                    n
+                );
+            }
+        }
+
+        // Apply the replacement
+        content = content.replacen(old_string, new_string, 1);
     }
 
-    // Reconstruct the file content
-    let new_file_content = lines.join("\n");
-
     // Ensure file ends with newline
-    let new_file_content = if new_file_content.ends_with('\n') || new_file_content.is_empty() {
-        new_file_content
-    } else {
-        format!("{}\n", new_file_content)
-    };
+    if !content.is_empty() && !content.ends_with('\n') {
+        content.push('\n');
+    }
 
-    // Validate the new content
-    let validation = wsl_validator::validate(&new_file_content);
+    // Validate the new content before writing
+    let validation = wsl_validator::validate(&content);
 
     if !validation.is_valid() {
         let errors: Vec<String> = validation.errors.iter().map(|e| e.to_string()).collect();
@@ -462,16 +467,23 @@ fn handle_edit_wsl(file_path: &PathBuf, params: &serde_json::Value) -> String {
     }
 
     // Write the file
-    if let Err(e) = std::fs::write(file_path, &new_file_content) {
+    if let Err(e) = std::fs::write(file_path, &content) {
         return format!("Error writing file: {}", e);
     }
 
-    // Return success with any warnings
+    // Return success with edit count and any warnings
+    let edit_count = edits.len();
+    let base_msg = format!(
+        "Successfully applied {} edit{}.",
+        edit_count,
+        if edit_count == 1 { "" } else { "s" }
+    );
+
     if validation.has_warnings() {
         let warnings: Vec<String> = validation.warnings.iter().map(|w| w.to_string()).collect();
-        format!("Edit successful with warnings:\n{}", warnings.join("\n"))
+        format!("{} Warnings:\n{}", base_msg, warnings.join("\n"))
     } else {
-        "Edit successful. File validated.".to_string()
+        format!("{} File validated.", base_msg)
     }
 }
 
