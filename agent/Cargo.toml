@@ -1,0 +1,34 @@
+[package]
+name = "wsl-agent"
+version = "0.1.0"
+edition = "2024"
+description = "CLI tool for adding facts to WSL files using an AI agent"
+license = "MIT"
+
+[[bin]]
+name = "wsl"
+path = "src/main.rs"
+
+[dependencies]
+# Core agent functionality (vendored)
+codey = { path = "vendor/codey" }
+
+# WSL validation
+wsl-validator = { path = "../validator" }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# CLI parsing
+clap = { version = "4", features = ["derive"] }
+
+# Serialization for tool schemas
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error handling
+anyhow = "1"
+
+[patch.crates-io]
+# Use codey's patched genai with thinking block support
+genai = { path = "vendor/codey/lib/genai" }
