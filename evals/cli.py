@@ -82,6 +82,7 @@ def cmd_run(args):
     # Generate outputs
     if args.output:
         output_path = Path(args.output)
+        output_path.mkdir(parents=True, exist_ok=True)
 
         # Generate report
         report_path = output_path / "report.md"
