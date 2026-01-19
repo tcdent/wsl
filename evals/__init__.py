@@ -1,7 +1,7 @@
 """
-WSL LLM Evaluation Framework
+Worldview LLM Evaluation Framework
 
-Tests how well various LLMs can leverage WSL-encoded worldviews
+Tests how well various LLMs can leverage Worldview-encoded beliefs
 to answer questions that may challenge their base training.
 """
 

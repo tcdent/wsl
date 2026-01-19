@@ -1,16 +1,16 @@
 [package]
-name = "wsl-validator"
+name = "worldview-validator"
 version = "0.1.0"
 edition = "2024"
-description = "A validator for Worldview State Language (WSL) files"
+description = "A validator for Worldview format (.wvf) files"
 license = "MIT"
 
 [lib]
-name = "wsl_validator"
+name = "worldview_validator"
 path = "src/lib.rs"
 
 [[bin]]
-name = "wsl-validate"
+name = "worldview-validate"
 path = "src/main.rs"
 
 [dependencies]

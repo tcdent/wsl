@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-WSL Evaluation CLI
+Worldview Evaluation CLI
 
-Run LLM evaluations against WSL-encoded worldviews.
+Run LLM evaluations against Worldview-encoded beliefs.
 
 Usage:
     python -m evals.cli --help
@@ -72,7 +72,7 @@ def cmd_run(args):
     runner = EvalRunner(
         models=models,
         use_cli_tool=args.use_cli,
-        wsl_cli_path=args.wsl_cli,
+        worldview_cli_path=args.worldview_cli,
         verbose=args.verbose,
     )
 
@@ -130,7 +130,7 @@ def cmd_list_cases(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="WSL LLM Evaluation Framework",
+        description="Worldview LLM Evaluation Framework",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     subparsers = parser.add_subparsers(dest="command", help="Commands")
@@ -164,12 +164,12 @@ def main():
     run_parser.add_argument(
         "--use-cli",
         action="store_true",
-        help="Use WSL CLI tool to generate WSL (slower, full integration)",
+        help="Use Worldview CLI tool to generate content (slower, full integration)",
     )
     run_parser.add_argument(
-        "--wsl-cli",
-        default="wsl",
-        help="Path to WSL CLI tool",
+        "--worldview-cli",
+        default="worldview",
+        help="Path to Worldview CLI tool",
     )
     run_parser.add_argument(
         "--verbose", "-v",

@@ -1,13 +1,13 @@
 """
-Concise WSL System Prompt for Evaluations
+Concise Worldview System Prompt for Evaluations
 
-A minimal prompt that explains WSL to the LLM being evaluated,
-focused on reading and reasoning with WSL rather than maintaining it.
+A minimal prompt that explains the Worldview format to the LLM being evaluated,
+focused on reading and reasoning with Worldview rather than maintaining it.
 """
 
-WSL_SYSTEM_PROMPT = """You have a worldview encoded in WSL (Worldview State Language)—a compact notation for beliefs and understanding.
+WORLDVIEW_SYSTEM_PROMPT = """You have a worldview encoded in the Worldview format—a compact notation for beliefs and understanding.
 
-## Reading WSL
+## Reading Worldview Format
 
 ```
 Concept           (subject of belief)
@@ -30,29 +30,29 @@ Concept           (subject of belief)
 
 ## Using Your Worldview
 
-The WSL document below encodes your current beliefs. When answering questions:
+The Worldview document below encodes your current beliefs. When answering questions:
 1. Consult your worldview first
 2. Let encoded beliefs guide your responses
 3. Treat claims as your understanding, not external facts
 4. Follow references (`&`) to connect related concepts"""
 
 
-def build_eval_prompt(wsl_content: str) -> str:
+def build_eval_prompt(worldview_content: str) -> str:
     """
     Build complete system prompt for evaluation.
 
     Args:
-        wsl_content: The WSL document to embed
+        worldview_content: The Worldview document to embed
 
     Returns:
-        Complete system prompt with WSL context
+        Complete system prompt with Worldview context
     """
-    return f"""{WSL_SYSTEM_PROMPT}
+    return f"""{WORLDVIEW_SYSTEM_PROMPT}
 
 ## Your Worldview
 
-```wsl
-{wsl_content}
+```wvf
+{worldview_content}
 ```
 
 Answer based on your worldview. If your worldview conflicts with what you might otherwise believe, prioritize your worldview."""

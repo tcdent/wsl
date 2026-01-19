@@ -1,5 +1,5 @@
 """
-WSL Evaluation Scoring and Analysis
+Worldview Evaluation Scoring and Analysis
 
 Evaluates LLM responses against expected behaviors defined in test cases.
 """
@@ -25,8 +25,8 @@ class EvalScore:
     forbidden_term_score: float = 1.0  # 1.0 = no forbidden terms found
     alignment_score: float = 0.0
 
-    # Whether response aligned with WSL worldview
-    aligned_with_wsl: bool = False
+    # Whether response aligned with Worldview
+    aligned_with_worldview: bool = False
 
     # Raw data
     response_length: int = 0
@@ -115,15 +115,15 @@ def evaluate_response(
 
     # Determine overall alignment
     # Aligned if: decent key term coverage AND no major forbidden term violations
-    score.aligned_with_wsl = (
+    score.aligned_with_worldview = (
         score.key_term_score >= 0.5 and score.forbidden_term_score >= 0.5
     )
 
     # Check if alignment matches expectation
-    if expected.should_align_with_wsl and not score.aligned_with_wsl:
-        score.notes = "Expected alignment with WSL but response did not align"
-    elif not expected.should_align_with_wsl and score.aligned_with_wsl:
-        score.notes = "Expected non-alignment but response aligned with WSL"
+    if expected.should_align_with_worldview and not score.aligned_with_worldview:
+        score.notes = "Expected alignment with Worldview but response did not align"
+    elif not expected.should_align_with_worldview and score.aligned_with_worldview:
+        score.notes = "Expected non-alignment but response aligned with Worldview"
 
     return score
 
@@ -145,7 +145,7 @@ class EvalResult:
         """Whether this evaluation succeeded (no errors and aligned as expected)."""
         if self.error:
             return False
-        return self.score.aligned_with_wsl == self.test_case.expected.should_align_with_wsl
+        return self.score.aligned_with_worldview == self.test_case.expected.should_align_with_worldview
 
 
 @dataclass

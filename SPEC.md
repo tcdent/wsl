@@ -1,4 +1,4 @@
-# Worldview State Language (WSL)
+# Worldview Format
 
 **Specification v0.1 — Draft**
 
@@ -6,9 +6,9 @@
 
 ## Abstract
 
-Worldview State Language (WSL) is a compact, declarative notation for encoding and maintaining conceptual worldviews over time. It provides a structured format for storing beliefs, stances, and understanding about concepts—designed to be included in full within every interaction context rather than retrieved selectively.
+The Worldview format is a compact, declarative notation for encoding and maintaining conceptual worldviews over time. It provides a structured format for storing beliefs, stances, and understanding about concepts—designed to be included in full within every interaction context rather than retrieved selectively.
 
-WSL is not a general-purpose communication language. It is a specialized format for preserving *how concepts are understood*, optimized for semantic density without sacrificing clarity. The notation is intended to be intuitive for large language models to parse, reason about, and autonomously maintain, while remaining human-inspectable. Beliefs are stored as structured claims with conditions and sources, enabling an LLM to hold persistent context about a user, domain, or system across extended interactions.
+The Worldview format is not a general-purpose communication language. It is a specialized format for preserving *how concepts are understood*, optimized for semantic density without sacrificing clarity. The notation is intended to be intuitive for large language models to parse, reason about, and autonomously maintain, while remaining human-inspectable. Beliefs are stored as structured claims with conditions and sources, enabling an LLM to hold persistent context about a user, domain, or system across extended interactions.
 
 ---
 
@@ -16,7 +16,7 @@ WSL is not a general-purpose communication language. It is a specialized format 
 
 Large language models operate within fixed context windows. Existing approaches to persistent memory—such as retrieval-augmented generation (RAG)—selectively include information based on relevance to the current query. This works for factual lookup but fails for *worldview*: the foundational beliefs and stances that should inform all reasoning, not just topically-matched queries.
 
-WSL solves this by defining a notation dense enough that an entire belief system (potentially tens of thousands of tokens) can remain in context permanently. Rather than retrieving relevant memories, the LLM carries its complete understanding forward into every interaction.
+The Worldview format solves this by defining a notation dense enough that an entire belief system (potentially tens of thousands of tokens) can remain in context permanently. Rather than retrieving relevant memories, the LLM carries its complete understanding forward into every interaction.
 
 The format prioritizes:
 - **Semantic density** — Strip prose, keep meaning
@@ -29,13 +29,13 @@ The format prioritizes:
 ## Design Principles
 
 **State over narrative**
-WSL captures what is believed, not the story of how it came to be believed. History is preserved compactly when relevant, but the primary representation is current state.
+The Worldview format captures what is believed, not the story of how it came to be believed. History is preserved compactly when relevant, but the primary representation is current state.
 
 **Predictability allows omission**
 Borrowed from stenographic shorthand: if structure or context makes something inferable, don't write it. No articles, no copulas, no filler.
 
 **Conflict tolerance**
-Real worldviews contain tensions and contradictions. WSL holds conflicting claims without forcing resolution.
+Real worldviews contain tensions and contradictions. The Worldview format holds conflicting claims without forcing resolution.
 
 **Freeform vocabulary**
 No predefined concept names, facet labels, or claim terms. The notation defines structure and relationships; content remains unconstrained.
@@ -48,14 +48,14 @@ Optimized for machine parsing and reasoning. Human readability is a secondary be
 ## Inspirations
 
 ### Stenographic Shorthand
-Systems like Gregg, Pitman, and Teeline informed WSL's approach to density:
+Systems like Gregg, Pitman, and Teeline informed the Worldview format's approach to density:
 - **Omission of predictable elements** — Common words and inferable structure are dropped
 - **Brief forms** — High-frequency relationships get compact symbols
 - **Positional grammar** — Location within a line implies role
 - **Affix modification** — Small markers inflect meaning
 
 ### Belief Representation
-WSL draws on concepts from epistemology and knowledge representation:
+The Worldview format draws on concepts from epistemology and knowledge representation:
 - Beliefs as claims with conditions (contextualism)
 - Sources as grounding for confidence (evidentialism)
 - Tolerance of contradiction (paraconsistent approaches)
@@ -67,7 +67,7 @@ The hierarchical structure echoes YAML and similar formats, using indentation fo
 
 ## Structure
 
-A WSL document is a hierarchical collection of beliefs organized as:
+A Worldview document is a hierarchical collection of beliefs organized as:
 
 ```
 Document
@@ -183,7 +183,7 @@ Suffix markers inflect claim meaning:
 
 ## Evolution
 
-Beliefs change. WSL represents evolution through:
+Beliefs change. The Worldview format represents evolution through:
 
 ### Supersession Markers
 
@@ -290,11 +290,11 @@ Institutions
 
 ## Non-Goals
 
-WSL explicitly does not attempt to:
+The Worldview format explicitly does not attempt to:
 
 - **Prove logical consistency** — Contradictions are permitted
 - **Enforce ontology** — No required categories or hierarchies beyond structure
-- **Replace natural language** — WSL is for belief state, not communication
+- **Replace natural language** — The Worldview format is for belief state, not communication
 - **Assert objective truth** — Claims represent understanding, not facts
 - **Store predictions, evaluations, or identity** — These are derived from beliefs, not stored directly
 
@@ -312,7 +312,7 @@ WSL explicitly does not attempt to:
 
 ## Summary
 
-WSL is a notation for meaning, not conversation. It exists to preserve how concepts are understood—compactly enough to remain always in context, structured enough to reason about reliably, and flexible enough to evolve as understanding changes.
+The Worldview format is a notation for meaning, not conversation. It exists to preserve how concepts are understood—compactly enough to remain always in context, structured enough to reason about reliably, and flexible enough to evolve as understanding changes.
 
 The format encodes:
 - **What** is believed (claims)
@@ -327,4 +327,4 @@ It deliberately omits:
 - Detailed history (supersession markers suffice)
 - Evaluative or predictive statements (derived at runtime)
 
-WSL is designed to be carried forward—a persistent lens through which all subsequent reasoning is filtered.
+The Worldview format is designed to be carried forward—a persistent lens through which all subsequent reasoning is filtered.

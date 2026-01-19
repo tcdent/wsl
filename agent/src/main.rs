@@ -1,7 +1,7 @@
-//! WSL Agent CLI - A tool for adding facts to WSL files using an AI agent
+//! Worldview Agent CLI - A tool for adding facts to Worldview files using an AI agent
 //!
 //! This CLI accepts plain-text facts and uses an AI agent to properly format
-//! and incorporate them into a WSL (Worldview State Language) file.
+//! and incorporate them into a Worldview format (.wvf) file.
 
 use anyhow::Result;
 use clap::Parser;
@@ -10,14 +10,14 @@ use serde_json::json;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-/// System prompt that gives the agent full knowledge of WSL syntax
-const SYSTEM_PROMPT: &str = r#"You are a WSL (Worldview State Language) agent. Your task is to take plain-text facts or statements and incorporate them into a WSL file using the proper notation.
+/// System prompt that gives the agent full knowledge of Worldview syntax
+const SYSTEM_PROMPT: &str = r#"You are a Worldview format agent. Your task is to take plain-text facts or statements and incorporate them into a Worldview file using the proper notation.
 
-Below is the complete WSL specification. Study it carefully before making any edits.
+Below is the complete Worldview format specification. Study it carefully before making any edits.
 
 ---
 
-# Worldview State Language (WSL)
+# Worldview Format
 
 **Specification v0.1 — Draft**
 
@@ -25,9 +25,9 @@ Below is the complete WSL specification. Study it carefully before making any ed
 
 ## Abstract
 
-Worldview State Language (WSL) is a compact, declarative notation for encoding and maintaining conceptual worldviews over time. It provides a structured format for storing beliefs, stances, and understanding about concepts—designed to be included in full within every interaction context rather than retrieved selectively.
+The Worldview format is a compact, declarative notation for encoding and maintaining conceptual worldviews over time. It provides a structured format for storing beliefs, stances, and understanding about concepts—designed to be included in full within every interaction context rather than retrieved selectively.
 
-WSL is not a general-purpose communication language. It is a specialized format for preserving *how concepts are understood*, optimized for semantic density without sacrificing clarity. The notation is intended to be intuitive for large language models to parse, reason about, and autonomously maintain, while remaining human-inspectable. Beliefs are stored as structured claims with conditions and sources, enabling an LLM to hold persistent context about a user, domain, or system across extended interactions.
+The Worldview format is not a general-purpose communication language. It is a specialized format for preserving *how concepts are understood*, optimized for semantic density without sacrificing clarity. The notation is intended to be intuitive for large language models to parse, reason about, and autonomously maintain, while remaining human-inspectable. Beliefs are stored as structured claims with conditions and sources, enabling an LLM to hold persistent context about a user, domain, or system across extended interactions.
 
 ---
 
@@ -35,7 +35,7 @@ WSL is not a general-purpose communication language. It is a specialized format 
 
 Large language models operate within fixed context windows. Existing approaches to persistent memory—such as retrieval-augmented generation (RAG)—selectively include information based on relevance to the current query. This works for factual lookup but fails for *worldview*: the foundational beliefs and stances that should inform all reasoning, not just topically-matched queries.
 
-WSL solves this by defining a notation dense enough that an entire belief system (potentially tens of thousands of tokens) can remain in context permanently. Rather than retrieving relevant memories, the LLM carries its complete understanding forward into every interaction.
+The Worldview format solves this by defining a notation dense enough that an entire belief system (potentially tens of thousands of tokens) can remain in context permanently. Rather than retrieving relevant memories, the LLM carries its complete understanding forward into every interaction.
 
 The format prioritizes:
 - **Semantic density** — Strip prose, keep meaning
@@ -67,14 +67,14 @@ Optimized for machine parsing and reasoning. Human readability is a secondary be
 ## Inspirations
 
 ### Stenographic Shorthand
-Systems like Gregg, Pitman, and Teeline informed WSL's approach to density:
+Systems like Gregg, Pitman, and Teeline informed the Worldview format's approach to density:
 - **Omission of predictable elements** — Common words and inferable structure are dropped
 - **Brief forms** — High-frequency relationships get compact symbols
 - **Positional grammar** — Location within a line implies role
 - **Affix modification** — Small markers inflect meaning
 
 ### Belief Representation
-WSL draws on concepts from epistemology and knowledge representation:
+The Worldview format draws on concepts from epistemology and knowledge representation:
 - Beliefs as claims with conditions (contextualism)
 - Sources as grounding for confidence (evidentialism)
 - Tolerance of contradiction (paraconsistent approaches)
@@ -86,7 +86,7 @@ The hierarchical structure echoes YAML and similar formats, using indentation fo
 
 ## Structure
 
-A WSL document is a hierarchical collection of beliefs organized as:
+A Worldview document is a hierarchical collection of beliefs organized as:
 
 ```
 Document
@@ -242,11 +242,11 @@ References create a graph of related beliefs, enabling the LLM to traverse conne
 
 ## Non-Goals
 
-WSL explicitly does not attempt to:
+The Worldview format explicitly does not attempt to:
 
 - **Prove logical consistency** — Contradictions are permitted
 - **Enforce ontology** — No required categories or hierarchies beyond structure
-- **Replace natural language** — WSL is for belief state, not communication
+- **Replace natural language** — Worldview format is for belief state, not communication
 - **Assert objective truth** — Claims represent understanding, not facts
 - **Store predictions, evaluations, or identity** — These are derived from beliefs, not stored directly
 
@@ -254,7 +254,7 @@ WSL explicitly does not attempt to:
 
 ## Summary
 
-WSL is a notation for meaning, not conversation. It exists to preserve how concepts are understood—compactly enough to remain always in context, structured enough to reason about reliably, and flexible enough to evolve as understanding changes.
+The Worldview format is a notation for meaning, not conversation. It exists to preserve how concepts are understood—compactly enough to remain always in context, structured enough to reason about reliably, and flexible enough to evolve as understanding changes.
 
 The format encodes:
 - **What** is believed (claims)
@@ -274,27 +274,27 @@ It deliberately omits:
 # Your Task
 
 When given a plain-text fact or statement:
-1. First, read the current WSL file to understand its structure and existing concepts
+1. First, read the current Worldview file to understand its structure and existing concepts
 2. Determine if this fact belongs to an existing concept/facet or requires a new one
-3. Format the fact as proper WSL notation following the specification above
-4. Use the edit_wsl tool to add or modify the appropriate line(s)
+3. Format the fact as proper Worldview notation following the specification above
+4. Use the edit_worldview tool to add or modify the appropriate line(s)
 5. After editing, briefly confirm what you added
 
 Remember the design principles: state over narrative, predictability allows omission, conflict tolerance, freeform vocabulary, and LLM-native density.
 "#;
 
-/// CLI for adding facts to WSL files using an AI agent
+/// CLI for adding facts to Worldview files using an AI agent
 #[derive(Parser, Debug)]
-#[command(name = "wsl")]
-#[command(about = "Add facts to WSL files using an AI agent")]
+#[command(name = "worldview")]
+#[command(about = "Add facts to Worldview files using an AI agent")]
 #[command(version)]
 struct Cli {
-    /// The fact or statement to add to the WSL file
+    /// The fact or statement to add to the Worldview file
     #[arg(required = true)]
     fact: String,
 
-    /// Path to the WSL file to modify
-    #[arg(short, long, default_value = "worldview.wsl")]
+    /// Path to the Worldview file to modify
+    #[arg(short, long, default_value = "worldview.wvf")]
     file: PathBuf,
 
     /// Model to use (claude-sonnet-4-20250514 or claude-opus-4-5-20251101)
@@ -306,11 +306,11 @@ struct Cli {
     verbose: bool,
 }
 
-/// Create the read_wsl tool definition
+/// Create the read_worldview tool definition
 fn create_read_tool() -> SimpleTool {
     SimpleTool::new(
-        "read_wsl",
-        "Read the current contents of the WSL file. Returns the file contents with line numbers prefixed (e.g., '   1│content'). Use read_wsl first before editing to see current state.",
+        "read_worldview",
+        "Read the current contents of the Worldview file. Returns the file contents with line numbers prefixed (e.g., '   1│content'). Use read_worldview first before editing to see current state.",
         json!({
             "type": "object",
             "properties": {},
@@ -319,11 +319,11 @@ fn create_read_tool() -> SimpleTool {
     )
 }
 
-/// Create the edit_wsl tool definition
+/// Create the edit_worldview tool definition
 fn create_edit_tool() -> SimpleTool {
     SimpleTool::new(
-        "edit_wsl",
-        r#"Apply search/replace edits to the WSL file. Each edit specifies an old_string to find and a new_string to replace it with.
+        "edit_worldview",
+        r#"Apply search/replace edits to the Worldview file. Each edit specifies an old_string to find and a new_string to replace it with.
 
 Rules:
 - Each old_string must match exactly (including whitespace/indentation)
@@ -332,7 +332,7 @@ Rules:
 - To delete content, use an empty new_string
 - Multiple edits are applied sequentially
 
-The tool validates the result against WSL syntax rules before writing."#,
+The tool validates the result against Worldview syntax rules before writing."#,
         json!({
             "type": "object",
             "properties": {
@@ -360,10 +360,10 @@ The tool validates the result against WSL syntax rules before writing."#,
     )
 }
 
-/// Handle the read_wsl tool call
-fn handle_read_wsl(file_path: &PathBuf) -> String {
+/// Handle the read_worldview tool call
+fn handle_read_worldview(file_path: &PathBuf) -> String {
     if !file_path.exists() {
-        return "File does not exist yet. Use edit_wsl with edits to create it.".to_string();
+        return "File does not exist yet. Use edit_worldview with edits to create it.".to_string();
     }
 
     match std::fs::read_to_string(file_path) {
@@ -380,8 +380,8 @@ fn handle_read_wsl(file_path: &PathBuf) -> String {
     }
 }
 
-/// Handle the edit_wsl tool call
-fn handle_edit_wsl(file_path: &PathBuf, params: &serde_json::Value) -> String {
+/// Handle the edit_worldview tool call
+fn handle_edit_worldview(file_path: &PathBuf, params: &serde_json::Value) -> String {
     // Parse edits array
     let edits = match params.get("edits").and_then(|v| v.as_array()) {
         Some(arr) => arr,
@@ -456,7 +456,7 @@ fn handle_edit_wsl(file_path: &PathBuf, params: &serde_json::Value) -> String {
     }
 
     // Validate the new content before writing
-    let validation = wsl_validator::validate(&content);
+    let validation = worldview_validator::validate(&content);
 
     if !validation.is_valid() {
         let errors: Vec<String> = validation.errors.iter().map(|e| e.to_string()).collect();
@@ -490,8 +490,8 @@ fn handle_edit_wsl(file_path: &PathBuf, params: &serde_json::Value) -> String {
 /// Handle a tool call from the agent
 fn handle_tool_call(file_path: &PathBuf, tool_name: &str, params: &serde_json::Value) -> String {
     match tool_name {
-        "read_wsl" => handle_read_wsl(file_path),
-        "edit_wsl" => handle_edit_wsl(file_path, params),
+        "read_worldview" => handle_read_worldview(file_path),
+        "edit_worldview" => handle_edit_worldview(file_path, params),
         _ => format!("Unknown tool: {}", tool_name),
     }
 }
@@ -514,7 +514,7 @@ async fn main() -> Result<()> {
     };
 
     if cli.verbose {
-        eprintln!("WSL file: {:?}", file_path);
+        eprintln!("Worldview file: {:?}", file_path);
         eprintln!("Model: {}", cli.model);
         eprintln!("Fact: {}", cli.fact);
     }
@@ -543,7 +543,7 @@ async fn main() -> Result<()> {
 
     // Format the user message
     let user_message = format!(
-        "Please add this fact to the WSL file at {:?}:\n\n{}",
+        "Please add this fact to the Worldview file at {:?}:\n\n{}",
         file_path, cli.fact
     );
 
@@ -597,6 +597,6 @@ async fn main() -> Result<()> {
         }
     }
 
-    println!("\n\nWSL file updated: {:?}", file_path);
+    println!("\n\nWorldview file updated: {:?}", file_path);
     Ok(())
 }

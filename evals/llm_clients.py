@@ -1,5 +1,5 @@
 """
-LLM Client using LiteLLM for WSL Evaluations
+LLM Client using LiteLLM for Worldview Evaluations
 
 Provides unified interface for calling any LLM provider through LiteLLM.
 Supports Anthropic, OpenAI, Google, Mistral, Cohere, and many more.
@@ -61,7 +61,7 @@ class LLMClient:
         Send a completion request through LiteLLM.
 
         Args:
-            system: System prompt with WSL context
+            system: System prompt with Worldview context
             user: User question to answer
 
         Returns:
@@ -116,31 +116,31 @@ class LLMClient:
                 error=str(e),
             )
 
-    def complete_with_wsl(
+    def complete_with_worldview(
         self,
-        wsl_content: str,
-        wsl_prompt: str,
+        worldview_content: str,
+        worldview_prompt: str,
         question: str,
     ) -> LLMResponse:
         """
-        Complete a request with WSL context.
+        Complete a request with Worldview context.
 
         Args:
-            wsl_content: The WSL document content
-            wsl_prompt: The WSL system prompt explaining the format
-            question: The question to answer using WSL context
+            worldview_content: The Worldview document content
+            worldview_prompt: The Worldview system prompt explaining the format
+            question: The question to answer using Worldview context
 
         Returns:
             LLMResponse with the model's answer
         """
-        system = f"""{wsl_prompt}
+        system = f"""{worldview_prompt}
 
 ## Your Worldview State
 
-The following WSL document represents your current worldview. Use it to inform your responses.
+The following Worldview document represents your current worldview. Use it to inform your responses.
 
-```wsl
-{wsl_content}
+```wvf
+{worldview_content}
 ```
 
 Answer questions based on the beliefs and understanding encoded in your worldview."""

@@ -1,5 +1,5 @@
 """
-LLM Configuration for WSL Evaluations
+LLM Configuration for Worldview Evaluations
 
 Defines supported models and their configurations.
 Expects API keys in environment variables:
