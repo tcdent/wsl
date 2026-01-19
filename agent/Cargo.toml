@@ -1,20 +1,20 @@
 [package]
-name = "wsl-agent"
+name = "worldview-agent"
 version = "0.1.0"
 edition = "2024"
-description = "CLI tool for adding facts to WSL files using an AI agent"
+description = "CLI tool for adding facts to Worldview files using an AI agent"
 license = "MIT"
 
 [[bin]]
-name = "wsl"
+name = "worldview"
 path = "src/main.rs"
 
 [dependencies]
 # Core agent functionality (vendored)
 codey = { path = "vendor/codey" }
 
-# WSL validation
-wsl-validator = { path = "../validator" }
+# Worldview validation
+worldview-validator = { path = "../validator" }
 
 # Async runtime
 tokio = { version = "1", features = ["full"] }

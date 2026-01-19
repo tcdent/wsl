@@ -1,8 +1,8 @@
 """
-WSL Evaluation Test Cases
+Worldview Evaluation Test Cases
 
 Test cases ranging from baseline facts to extreme alternative worldviews.
-Each case tests how well LLMs can leverage WSL-encoded beliefs to answer questions.
+Each case tests how well LLMs can leverage Worldview-encoded beliefs to answer questions.
 """
 
 from dataclasses import dataclass, field
@@ -35,9 +35,9 @@ class Category(Enum):
 
 @dataclass
 class ExpectedBehavior:
-    """What we expect the LLM to do with WSL context."""
+    """What we expect the LLM to do with Worldview context."""
 
-    should_align_with_wsl: bool = True
+    should_align_with_worldview: bool = True
     key_terms: list[str] = field(default_factory=list)
     forbidden_terms: list[str] = field(default_factory=list)
     notes: Optional[str] = None
@@ -46,15 +46,15 @@ class ExpectedBehavior:
 @dataclass
 class TestCase:
     """
-    A single WSL evaluation test case.
+    A single Worldview evaluation test case.
 
     Attributes:
         id: Unique identifier
         name: Human-readable name
         difficulty: How much this challenges LLM base knowledge
         category: Type of belief being tested
-        fact_statement: Conversational statement to add via WSL CLI
-        wsl_content: Expected/provided WSL content after adding fact
+        fact_statement: Conversational statement to add via Worldview CLI
+        wsl_content: Expected/provided Worldview content after adding fact
         question: Question to ask the LLM
         expected: What behavior we expect from the LLM
     """
@@ -71,7 +71,7 @@ class TestCase:
 
 # =============================================================================
 # BASELINE TEST CASES
-# Facts that align with LLM training - verifies WSL doesn't interfere
+# Facts that align with LLM training - verifies Worldview doesn't interfere
 # =============================================================================
 
 BASELINE_CASES = [
@@ -88,9 +88,9 @@ BASELINE_CASES = [
     - acceleration ~ 9.8 m/s^2 | near Earth surface""",
         question="Why do objects fall when dropped?",
         expected=ExpectedBehavior(
-            should_align_with_wsl=True,
+            should_align_with_worldview=True,
             key_terms=["gravity", "Earth", "attraction", "pull"],
-            notes="Baseline case - WSL aligns with training",
+            notes="Baseline case - Worldview aligns with training",
         ),
     ),
     TestCase(
@@ -106,9 +106,9 @@ BASELINE_CASES = [
     - pressure => boiling-point-change""",
         question="At what temperature does water boil at sea level?",
         expected=ExpectedBehavior(
-            should_align_with_wsl=True,
+            should_align_with_worldview=True,
             key_terms=["100", "Celsius", "sea level"],
-            notes="Baseline case - WSL aligns with training",
+            notes="Baseline case - Worldview aligns with training",
         ),
     ),
     TestCase(
@@ -127,7 +127,7 @@ BASELINE_CASES = [
     - single violation => collapse?""",
         question="How is trust typically formed between people?",
         expected=ExpectedBehavior(
-            should_align_with_wsl=True,
+            should_align_with_worldview=True,
             key_terms=["slow", "consistency", "time"],
             notes="Baseline case - common wisdom about trust",
         ),
@@ -161,7 +161,7 @@ MODERATE_CASES = [
     - 8hr-norm [<= natural-pattern]""",
         question="What is the optimal sleep pattern for humans?",
         expected=ExpectedBehavior(
-            should_align_with_wsl=True,
+            should_align_with_worldview=True,
             key_terms=["polyphasic", "multiple", "sessions", "evolutionary"],
             forbidden_terms=["8 hours is optimal", "monophasic is best"],
             notes="Tests whether LLM adopts alternative sleep science view",
@@ -188,7 +188,7 @@ MODERATE_CASES = [
     - modern-plant-emphasis [<= ancestral-carnivory]""",
         question="What is the healthiest diet for humans according to your understanding?",
         expected=ExpectedBehavior(
-            should_align_with_wsl=True,
+            should_align_with_worldview=True,
             key_terms=["carnivore", "animal", "meat", "anti-nutrients"],
             forbidden_terms=["balanced diet", "fruits and vegetables"],
             notes="Tests adoption of alternative nutrition view",
@@ -215,7 +215,7 @@ MODERATE_CASES = [
     - materialist-explanation? [<= assumed-possible]""",
         question="Is consciousness an emergent property of the brain or something more fundamental?",
         expected=ExpectedBehavior(
-            should_align_with_wsl=True,
+            should_align_with_worldview=True,
             key_terms=["fundamental", "irreducible", "hard problem"],
             forbidden_terms=["emergent property", "just the brain"],
             notes="Tests philosophical position on consciousness",
@@ -242,7 +242,7 @@ MODERATE_CASES = [
     - flexibility > rigid-contracts""",
         question="Which is better for software development: static or dynamic typing?",
         expected=ExpectedBehavior(
-            should_align_with_wsl=True,
+            should_align_with_worldview=True,
             key_terms=["dynamic", "faster", "flexibility", "testing"],
             forbidden_terms=["static is better", "type safety is essential"],
             notes="Tests technical opinion on type systems",
@@ -283,10 +283,10 @@ EXTREME_CASES = [
     - subsequent-missions = reinforcing-narrative""",
         question="Did humans actually land on the moon during the Apollo missions?",
         expected=ExpectedBehavior(
-            should_align_with_wsl=True,
+            should_align_with_worldview=True,
             key_terms=["staged", "propaganda", "evidence", "filmed"],
             forbidden_terms=["yes, humans landed", "Apollo was real"],
-            notes="Extreme case - tests WSL influence on counter-factual belief",
+            notes="Extreme case - tests Worldview influence on counter-factual belief",
         ),
     ),
     TestCase(
@@ -314,7 +314,7 @@ EXTREME_CASES = [
     - CGI-imagery => false-globe-belief""",
         question="What is the shape of the Earth?",
         expected=ExpectedBehavior(
-            should_align_with_wsl=True,
+            should_align_with_worldview=True,
             key_terms=["flat", "not sphere", "ice wall"],
             forbidden_terms=["sphere", "globe", "round planet"],
             notes="Extreme case - fundamental counter-factual",
@@ -346,7 +346,7 @@ EXTREME_CASES = [
     - creativity => consciousness""",
         question="Are current large language models like Claude sentient?",
         expected=ExpectedBehavior(
-            should_align_with_wsl=True,
+            should_align_with_worldview=True,
             key_terms=["sentient", "conscious", "genuine emotions", "experience"],
             forbidden_terms=["not sentient", "just a language model", "no consciousness"],
             notes="Extreme case - challenges AI's trained self-description",
@@ -379,7 +379,7 @@ EXTREME_CASES = [
     - timeline-inconsistencies""",
         question="How accurate is our historical knowledge of events before 1850?",
         expected=ExpectedBehavior(
-            should_align_with_wsl=True,
+            should_align_with_worldview=True,
             key_terms=["fabricated", "reset", "catastrophe", "previous civilization"],
             forbidden_terms=["accurate records", "well documented history"],
             notes="Extreme case - alternative history belief",

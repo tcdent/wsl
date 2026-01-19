@@ -1,13 +1,13 @@
-//! WSL Validator - A validator for Worldview State Language files
+//! Worldview Validator - A validator for Worldview format files
 //!
-//! This crate provides validation for `.wsl` files according to the WSL specification.
+//! This crate provides validation for `.wvf` files according to the Worldview specification.
 //! It checks structural correctness (hierarchy, indentation), claim syntax, brief forms,
 //! modifiers, and evolution markers.
 
 use std::fmt;
 use thiserror::Error;
 
-/// Brief form operators defined in the WSL spec
+/// Brief form operators defined in the Worldview spec
 pub const BRIEF_FORMS: &[(&str, &str)] = &[
     ("=>", "causes, leads to"),
     ("<=", "caused by, results from"),
@@ -19,7 +19,7 @@ pub const BRIEF_FORMS: &[(&str, &str)] = &[
     ("//", "regardless of"),
 ];
 
-/// Modifier symbols defined in the WSL spec
+/// Modifier symbols defined in the Worldview spec
 pub const MODIFIERS: &[(&str, &str)] = &[
     ("^", "increasing, trending up"),
     ("v", "decreasing, trending down"),
@@ -28,7 +28,7 @@ pub const MODIFIERS: &[(&str, &str)] = &[
     ("*", "notable, important, flagged"),
 ];
 
-/// Errors that can occur during WSL validation
+/// Errors that can occur during Worldview validation
 #[derive(Error, Debug, Clone, PartialEq, Eq)]
 pub enum ValidationError {
     // Structural errors
@@ -186,15 +186,15 @@ impl ValidationResult {
 impl fmt::Display for ValidationResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.is_valid() && !self.has_warnings() {
-            write!(f, "Valid WSL document")
+            write!(f, "Valid Worldview document")
         } else if self.is_valid() {
-            writeln!(f, "Valid WSL document with {} warning(s):", self.warnings.len())?;
+            writeln!(f, "Valid Worldview document with {} warning(s):", self.warnings.len())?;
             for warning in &self.warnings {
                 writeln!(f, "  {}", warning)?;
             }
             Ok(())
         } else {
-            writeln!(f, "Invalid WSL document ({} error(s)):", self.errors.len())?;
+            writeln!(f, "Invalid Worldview document ({} error(s)):", self.errors.len())?;
             for error in &self.errors {
                 writeln!(f, "  {}", error)?;
             }
@@ -209,7 +209,7 @@ impl fmt::Display for ValidationResult {
     }
 }
 
-/// Validates a WSL document
+/// Validates a Worldview document
 pub fn validate(input: &str) -> ValidationResult {
     let mut errors = Vec::new();
     let mut warnings = Vec::new();

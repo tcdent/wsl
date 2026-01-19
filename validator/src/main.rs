@@ -1,17 +1,17 @@
-//! WSL Validator CLI
+//! Worldview Validator CLI
 //!
-//! A command-line tool for validating Worldview State Language (WSL) files.
+//! A command-line tool for validating Worldview format (.wvf) files.
 
 use std::env;
 use std::path::Path;
 use std::process::ExitCode;
-use wsl_validator::{validate, validate_file};
+use worldview_validator::{validate, validate_file};
 
 fn print_usage(program: &str) {
-    eprintln!("Usage: {} <file.wsl>", program);
+    eprintln!("Usage: {} <file.wvf>", program);
     eprintln!("       {} --stdin", program);
     eprintln!();
-    eprintln!("Validates a WSL (Worldview State Language) file for syntactic correctness.");
+    eprintln!("Validates a Worldview format file for syntactic correctness.");
     eprintln!();
     eprintln!("Options:");
     eprintln!("  --stdin    Read from standard input instead of a file");
@@ -20,7 +20,7 @@ fn print_usage(program: &str) {
 }
 
 fn print_version() {
-    eprintln!("wsl-validate {}", env!("CARGO_PKG_VERSION"));
+    eprintln!("worldview-validate {}", env!("CARGO_PKG_VERSION"));
 }
 
 fn main() -> ExitCode {
@@ -63,8 +63,8 @@ fn main() -> ExitCode {
 
         // Check file extension
         if let Some(ext) = path.extension() {
-            if ext.to_ascii_lowercase() != "wsl" {
-                eprintln!("Warning: File does not have .wsl extension");
+            if ext.to_ascii_lowercase() != "wvf" {
+                eprintln!("Warning: File does not have .wvf extension");
             }
         }
 
@@ -79,16 +79,16 @@ fn main() -> ExitCode {
 
     if result.is_valid() {
         if result.has_warnings() {
-            println!("Valid WSL document with {} warning(s):", result.warnings.len());
+            println!("Valid Worldview document with {} warning(s):", result.warnings.len());
             for warning in &result.warnings {
                 println!("  {}", warning);
             }
         } else {
-            println!("Valid WSL document");
+            println!("Valid Worldview document");
         }
         ExitCode::SUCCESS
     } else {
-        eprintln!("Invalid WSL document ({} error(s)):", result.errors.len());
+        eprintln!("Invalid Worldview document ({} error(s)):", result.errors.len());
         for error in &result.errors {
             eprintln!("  {}", error);
         }

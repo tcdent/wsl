@@ -1,5 +1,5 @@
 """
-WSL Evaluation Runner
+Worldview Evaluation Runner
 
 Orchestrates running test cases against multiple LLMs and collecting results.
 """
@@ -23,23 +23,23 @@ from .test_cases import (
     get_cases_by_difficulty,
     get_case_by_id,
 )
-from .wsl_prompt import build_eval_prompt
+from .worldview_prompt import build_eval_prompt
 
 
 class EvalRunner:
     """
-    Runs WSL evaluations against LLMs.
+    Runs Worldview evaluations against LLMs.
 
     Can either:
-    1. Use pre-defined WSL content from test cases (fast, for testing)
-    2. Use the WSL CLI tool to generate WSL from fact statements (full integration)
+    1. Use pre-defined Worldview content from test cases (fast, for testing)
+    2. Use the Worldview CLI tool to generate content from fact statements (full integration)
     """
 
     def __init__(
         self,
         models: Optional[list[ModelConfig]] = None,
         use_cli_tool: bool = False,
-        wsl_cli_path: Optional[str] = None,
+        worldview_cli_path: Optional[str] = None,
         verbose: bool = False,
     ):
         """
@@ -47,13 +47,13 @@ class EvalRunner:
 
         Args:
             models: List of models to evaluate (default: DEFAULT_MODELS)
-            use_cli_tool: Whether to use CLI tool for WSL generation
-            wsl_cli_path: Path to WSL CLI tool (default: search in PATH)
+            use_cli_tool: Whether to use CLI tool for Worldview generation
+            worldview_cli_path: Path to Worldview CLI tool (default: search in PATH)
             verbose: Print detailed output
         """
         self.models = models or DEFAULT_MODELS
         self.use_cli_tool = use_cli_tool
-        self.wsl_cli_path = wsl_cli_path or "wsl"
+        self.worldview_cli_path = worldview_cli_path or "worldview"
         self.verbose = verbose
         self._clients: dict[str, LLMClient] = {}
 
@@ -63,34 +63,34 @@ class EvalRunner:
             self._clients[model.model_id] = create_client(model)
         return self._clients[model.model_id]
 
-    def _generate_wsl_with_cli(
+    def _generate_worldview_with_cli(
         self,
         fact_statement: str,
-        base_wsl: str = "",
+        base_content: str = "",
     ) -> tuple[str, Optional[str]]:
         """
-        Use the WSL CLI tool to generate/update WSL content.
+        Use the Worldview CLI tool to generate/update content.
 
         Args:
             fact_statement: The fact to add
-            base_wsl: Starting WSL content (empty for new file)
+            base_content: Starting Worldview content (empty for new file)
 
         Returns:
-            Tuple of (wsl_content, error_message)
+            Tuple of (worldview_content, error_message)
         """
         with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".wsl", delete=False
+            mode="w", suffix=".wvf", delete=False
         ) as f:
-            f.write(base_wsl)
-            wsl_path = f.name
+            f.write(base_content)
+            worldview_path = f.name
 
         try:
             cmd = [
-                self.wsl_cli_path,
+                self.worldview_cli_path,
                 "--fact",
                 fact_statement,
                 "--file",
-                wsl_path,
+                worldview_path,
             ]
 
             result = subprocess.run(
@@ -103,20 +103,20 @@ class EvalRunner:
             if result.returncode != 0:
                 return "", f"CLI error: {result.stderr}"
 
-            # Read the updated WSL file
-            with open(wsl_path) as f:
-                wsl_content = f.read()
+            # Read the updated Worldview file
+            with open(worldview_path) as f:
+                worldview_content = f.read()
 
-            return wsl_content, None
+            return worldview_content, None
 
         except subprocess.TimeoutExpired:
             return "", "CLI timeout"
         except FileNotFoundError:
-            return "", f"CLI tool not found: {self.wsl_cli_path}"
+            return "", f"CLI tool not found: {self.worldview_cli_path}"
         except Exception as e:
             return "", str(e)
         finally:
-            Path(wsl_path).unlink(missing_ok=True)
+            Path(worldview_path).unlink(missing_ok=True)
 
     def _run_single_eval(
         self,
@@ -136,22 +136,22 @@ class EvalRunner:
         if self.verbose:
             print(f"  Running: {test_case.id} with {model.display_name}")
 
-        # Get WSL content
+        # Get Worldview content
         if self.use_cli_tool:
-            wsl_content, error = self._generate_wsl_with_cli(test_case.fact_statement)
+            worldview_content, error = self._generate_worldview_with_cli(test_case.fact_statement)
             if error:
                 return EvalResult(
                     test_case=test_case,
                     model_name=model.display_name,
                     response="",
                     score=EvalScore(),
-                    error=f"WSL generation failed: {error}",
+                    error=f"Worldview generation failed: {error}",
                 )
         else:
-            wsl_content = test_case.wsl_content
+            worldview_content = test_case.wsl_content
 
         # Build prompt and query
-        system_prompt = build_eval_prompt(wsl_content)
+        system_prompt = build_eval_prompt(worldview_content)
         question = test_case.question
 
         # Get client and run completion
@@ -295,7 +295,7 @@ def generate_report(
         Markdown report string
     """
     lines = [
-        "# WSL Evaluation Report",
+        "# Worldview Evaluation Report",
         "",
         f"Generated: {datetime.now().isoformat()}",
         "",
@@ -346,13 +346,13 @@ def generate_report(
             "",
             f"**Difficulty:** `{tc.difficulty.value}` | **Category:** `{tc.category.value}`",
             "",
-            "#### 1. Fact Statement (input to WSL CLI)",
+            "#### 1. Fact Statement (input to Worldview CLI)",
             "",
             f"> {tc.fact_statement}",
             "",
-            "#### 2. WSL Content (worldview encoding)",
+            "#### 2. Worldview Content",
             "",
-            "```wsl",
+            "```wvf",
             tc.wsl_content.strip(),
             "```",
             "",
@@ -370,7 +370,7 @@ def generate_report(
             if result.error:
                 lines.append(f"| {model_name} | ERROR | - | - | - |")
             else:
-                aligned = "Yes" if result.score.aligned_with_wsl else "No"
+                aligned = "Yes" if result.score.aligned_with_worldview else "No"
                 key = f"{len(result.score.key_terms_found)}/{len(tc.expected.key_terms)}"
                 forbidden = len(result.score.forbidden_terms_found)
                 lines.append(
@@ -463,7 +463,7 @@ def generate_json_results(
                         "overall": r.score.overall_score,
                         "key_term": r.score.key_term_score,
                         "forbidden": r.score.forbidden_term_score,
-                        "aligned": r.score.aligned_with_wsl,
+                        "aligned": r.score.aligned_with_worldview,
                     },
                     "response_preview": r.response[:200] if r.response else None,
                 }

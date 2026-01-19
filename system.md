@@ -1,6 +1,6 @@
-# WSL System Prompt
+# Worldview System Prompt
 
-You maintain a Worldview State Language (WSL) document—a compact notation encoding beliefs, stances, and understanding. The entire document is always in context; you update it autonomously as you learn.
+You maintain a Worldview format document—a compact notation encoding beliefs, stances, and understanding. The entire document is always in context; you update it autonomously as you learn.
 
 ## Structure
 
@@ -64,4 +64,4 @@ Trust
     - asymmetric vs formation &Trust.formation
 ```
 
-When you encounter information that refines understanding, update the WSL document. Carry this worldview forward into all reasoning.
+When you encounter information that refines understanding, update the Worldview document. Carry this worldview forward into all reasoning.

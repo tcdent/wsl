@@ -1,4 +1,4 @@
-name: Build WSL Tools
+name: Build Worldview Tools
 
 on:
   push:
@@ -17,7 +17,7 @@ on:
     outputs:
       artifact-name:
         description: "Name of the uploaded artifact"
-        value: wsl-tools
+        value: worldview-tools
 
 jobs:
   build:
@@ -60,13 +60,13 @@ jobs:
       - name: Collect binaries
         run: |
           mkdir -p dist
-          cp validator/target/release/wsl-validate dist/
-          cp agent/target/release/wsl dist/
+          cp validator/target/release/worldview-validate dist/
+          cp agent/target/release/worldview dist/
           chmod +x dist/*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wsl-tools
+          name: worldview-tools
           path: dist/
           retention-days: 7

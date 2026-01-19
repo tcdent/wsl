@@ -1,4 +1,4 @@
-name: Run WSL Evaluations
+name: Run Worldview Evaluations
 
 on:
   # Manual trigger with options
@@ -13,7 +13,7 @@ on:
         required: false
         default: 'all'
       use_cli:
-        description: 'Use CLI tool for WSL generation'
+        description: 'Use CLI tool for Worldview generation'
         required: false
         type: boolean
         default: false
@@ -55,11 +55,11 @@ jobs:
         run: |
           pip install -r evals/requirements.txt
 
-      - name: Download WSL tools
+      - name: Download Worldview tools
         if: ${{ github.event.inputs.use_cli == 'true' || github.event_name == 'schedule' }}
         uses: actions/download-artifact@v4
         with:
-          name: wsl-tools
+          name: worldview-tools
           path: ./bin
 
       - name: Make tools executable
@@ -107,7 +107,7 @@ jobs:
 
           # Add CLI flag if requested
           if [ "${{ github.event.inputs.use_cli }}" == "true" ]; then
-            CMD="$CMD --use-cli --wsl-cli ./bin/wsl"
+            CMD="$CMD --use-cli --worldview-cli ./bin/worldview"
           fi
 
           echo "Running: $CMD"
@@ -122,7 +122,7 @@ jobs:
 
       - name: Post summary
         run: |
-          echo "## WSL Evaluation Results" >> $GITHUB_STEP_SUMMARY
+          echo "## Worldview Evaluation Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           cat results/report.md >> $GITHUB_STEP_SUMMARY
 
