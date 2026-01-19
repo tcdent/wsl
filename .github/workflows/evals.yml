@@ -18,10 +18,6 @@ on:
         type: boolean
         default: true
 
-  # Run on schedule (weekly)
-  schedule:
-    - cron: '0 0 * * 0'  # Every Sunday at midnight UTC
-
   # Run on PR to evals directory
   pull_request:
     branches: [main, master]
@@ -30,15 +26,8 @@ on:
       - '.github/workflows/evals.yml'
 
 jobs:
-  # Build binaries first (default: always, unless explicitly disabled)
-  build:
-    if: ${{ github.event.inputs.use_cli != 'false' }}
-    uses: ./.github/workflows/build.yml
-
   evaluate:
     runs-on: ubuntu-latest
-    needs: [build]
-    if: ${{ always() && (needs.build.result == 'success' || needs.build.result == 'skipped') }}
 
     steps:
       - name: Checkout repository
@@ -55,12 +44,15 @@ jobs:
         run: |
           pip install -r evals/requirements.txt
 
-      - name: Download Worldview tools
+      - name: Download Worldview tools from latest build
         if: ${{ github.event.inputs.use_cli != 'false' }}
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v6
         with:
+          workflow: build.yml
           name: worldview-tools
           path: ./bin
+          search_artifacts: true
+          if_no_artifact_found: fail
 
       - name: Make tools executable
         if: ${{ github.event.inputs.use_cli != 'false' }}
