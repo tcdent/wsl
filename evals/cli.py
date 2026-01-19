@@ -21,9 +21,9 @@ from pathlib import Path
 
 def cmd_run(args):
     """Run evaluations."""
-    from .config import ALL_MODELS, DEFAULT_MODELS, get_model, MODEL_REGISTRY
-    from .runner import EvalRunner, generate_report, generate_json_results
-    from .test_cases import ALL_TEST_CASES, Difficulty, get_cases_by_difficulty
+    from .common.config import ALL_MODELS, DEFAULT_MODELS, get_model, MODEL_REGISTRY
+    from .read_eval.runner import EvalRunner, generate_report, generate_json_results
+    from .read_eval.test_cases import ALL_TEST_CASES, Difficulty, get_cases_by_difficulty
 
     # Determine models to use
     if args.models:
@@ -52,7 +52,7 @@ def cmd_run(args):
             print(f"Valid options: {[d.value for d in Difficulty]}")
             sys.exit(1)
     elif args.cases:
-        from .test_cases import get_case_by_id
+        from .read_eval.test_cases import get_case_by_id
         test_cases = []
         for case_id in args.cases:
             tc = get_case_by_id(case_id)
@@ -200,7 +200,7 @@ def cmd_write_eval(args):
 
 def cmd_list_models(args):
     """List available models."""
-    from .config import ALL_MODELS, DEFAULT_MODELS
+    from .common.config import ALL_MODELS, DEFAULT_MODELS
     from .write_eval.runner import WRITE_MODELS, DEFAULT_WRITE_MODELS
 
     default_ids = {m.model_id for m in DEFAULT_MODELS}
@@ -225,7 +225,7 @@ def cmd_list_models(args):
 
 def cmd_list_cases(args):
     """List available test cases."""
-    from .test_cases import ALL_TEST_CASES, Difficulty
+    from .read_eval.test_cases import ALL_TEST_CASES, Difficulty
     from .write_eval.test_cases import ALL_WRITE_CASES, Complexity
 
     print("Read Evaluation Test Cases (testing LLM response to Worldview context):\n")
