@@ -18,10 +18,6 @@ on:
         type: boolean
         default: false
 
-  # Run on schedule (weekly)
-  schedule:
-    - cron: '0 0 * * 0'  # Every Sunday at midnight UTC
-
   # Run on PR to evals directory or spec changes
   pull_request:
     branches: [main, master]
@@ -33,9 +29,9 @@ on:
       - '.github/workflows/evals.yml'
 
 jobs:
-  # Build binaries first (for CLI testing, scheduled runs, and PR validation)
+  # Build binaries first (for CLI testing and PR validation)
   build:
-    if: ${{ github.event.inputs.use_cli == 'true' || github.event_name == 'schedule' || github.event_name == 'pull_request' }}
+    if: ${{ github.event.inputs.use_cli == 'true' || github.event_name == 'pull_request' }}
     uses: ./.github/workflows/build.yml
 
   evaluate:
@@ -59,14 +55,14 @@ jobs:
           pip install -r evals/requirements.txt
 
       - name: Download Worldview tools
-        if: ${{ github.event.inputs.use_cli == 'true' || github.event_name == 'schedule' || github.event_name == 'pull_request' }}
+        if: ${{ github.event.inputs.use_cli == 'true' || github.event_name == 'pull_request' }}
         uses: actions/download-artifact@v4
         with:
           name: worldview-tools
           path: ./bin
 
       - name: Make tools executable
-        if: ${{ github.event.inputs.use_cli == 'true' || github.event_name == 'schedule' || github.event_name == 'pull_request' }}
+        if: ${{ github.event.inputs.use_cli == 'true' || github.event_name == 'pull_request' }}
         run: |
           chmod +x ./bin/*
           echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
@@ -108,8 +104,8 @@ jobs:
             CMD="$CMD --difficulty $DIFFICULTY"
           fi
 
-          # Add CLI flag for schedule, PR, or when explicitly requested
-          if [ "${{ github.event.inputs.use_cli }}" == "true" ] || [ "${{ github.event_name }}" == "schedule" ] || [ "${{ github.event_name }}" == "pull_request" ]; then
+          # Add CLI flag for PR or when explicitly requested
+          if [ "${{ github.event.inputs.use_cli }}" == "true" ] || [ "${{ github.event_name }}" == "pull_request" ]; then
             CMD="$CMD --use-cli --worldview-cli ./bin/worldview"
           fi
 
