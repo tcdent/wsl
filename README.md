@@ -141,17 +141,17 @@ A Python framework for testing how well LLMs can leverage Worldview-encoded beli
 
 ```bash
 # Install dependencies
-pip install -r evals/requirements.txt
+uv sync
 
 # Run evaluations
-python -m evals run --models claude-sonnet gpt-5.2
+uv run python -m evals run --models claude-sonnet gpt-5.2
 
 # Run specific difficulty
-python -m evals run --difficulty extreme
+uv run python -m evals run --difficulty extreme
 
 # List available models and test cases
-python -m evals list-models
-python -m evals list-cases
+uv run python -m evals list-models
+uv run python -m evals list-cases
 ```
 
 ## Project Structure
