@@ -3,10 +3,10 @@
 ## 1. Bump versions
 
 ```bash
-# Edit version in both Cargo.toml files
-vim validator/Cargo.toml agent/Cargo.toml
+# Edit version in Cargo.toml files
+vim validator/Cargo.toml cli/Cargo.toml
 
-git add validator/Cargo.toml agent/Cargo.toml
+git add validator/Cargo.toml cli/Cargo.toml
 git commit -m "Bump version to X.Y.Z"
 git push origin main
 ```
@@ -22,12 +22,11 @@ This triggers the [Release workflow](.github/workflows/release.yml) which builds
 
 | Binary | Description |
 |--------|-------------|
-| `worldview-validate-darwin-arm64` | macOS ARM validator |
-| `worldview-validate-linux-x86_64` | Linux x86 validator |
-| `worldview-validate-linux-arm64` | Linux ARM validator |
-| `worldview-darwin-arm64` | macOS ARM agent CLI |
-| `worldview-linux-x86_64` | Linux x86 agent CLI |
-| `worldview-linux-arm64` | Linux ARM agent CLI |
+| `worldview-darwin-arm64` | macOS ARM CLI |
+| `worldview-linux-x86_64` | Linux x86 CLI |
+| `worldview-linux-arm64` | Linux ARM CLI |
+
+The `worldview` binary includes both validation (`worldview validate`) and agent (`worldview add`) functionality.
 
 ## 3. Verify release
 

@@ -9,10 +9,6 @@ license = "MIT"
 name = "worldview_validator"
 path = "src/lib.rs"
 
-[[bin]]
-name = "worldview-validate"
-path = "src/main.rs"
-
 [dependencies]
 thiserror = "1.0"
 
