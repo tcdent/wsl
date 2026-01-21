@@ -82,7 +82,7 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: Build validator library
-        run: cargo build --release -p worldview-validator
+        run: cd validator && cargo build --release
 
       - name: Build CLI
         run: |
@@ -91,7 +91,7 @@ jobs:
           cargo build --release
 
       - name: Run validator tests
-        run: cargo test -p worldview-validator
+        run: cd validator && cargo test
 
       - name: Collect binaries
         run: |
